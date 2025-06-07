@@ -14,7 +14,7 @@ interface FileInputListProps {
   accept?: (FileType | string)[];
 }
 
-function FileInputList({ files, setFiles, accept }: FileInputListProps) {
+function FileInputList({ files, setFiles, accept = Object.values(FileType) }: FileInputListProps) {
   function onChange(newFiles: File[]) {
     setFiles((oldFiles) => {
       return [...oldFiles, ...newFiles];

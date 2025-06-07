@@ -30,10 +30,30 @@ function FileInput({
   multiple,
   disabled,
 }: FileInputProps) {
+  const fileExtensionsToFileMimes: Record<string, string> = {
+    ".pdf": "application/pdf",
+    ".png": "image/png",
+    ".jpeg": "image/jpeg",
+    ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".mp3": "audio/mp3",
+    ".mp4": "video/mp4",
+    ".wav": "audio/wav",
+  }
+  const allowedFileMimes: string[] = []
+  for(const extension in fileExtensionsToFileMimes){
+    if(accept.includes(extension)){
+      allowedFileMimes.push(fileExtensionsToFileMimes[extension])
+    }
+  }
+
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    const filesArray = Array.from(event.target.files ?? new FileList());
+    const filesArray = Array.from(event.target.files ?? []).filter((file) => {
+      return allowedFileMimes.includes(file.type)
+    })
     onChange(filesArray);
   }
+
   return (
     <Button
       component="label"
