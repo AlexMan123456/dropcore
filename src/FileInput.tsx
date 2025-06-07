@@ -61,10 +61,29 @@ function FileInput({
   }
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    const filesArray = Array.from(event.target.files ?? []).filter((file) => {
-      return allowedFileMimes.includes(file.type);
-    });
-    onChange(filesArray);
+    const filesArray = Array.from(event.target.files ?? []);
+    const allowedFiles = [];
+    const forbiddenFiles = [];
+
+    for (const file of filesArray) {
+      if (allowedFileMimes.includes(file.type)) {
+        allowedFiles.push(file);
+      } else {
+        forbiddenFiles.push(file);
+      }
+    }
+    if (forbiddenFiles.length !== 0) {
+      alert(
+        [
+          "The following files did not match the expected format and will therefore not be accepted:",
+          ...forbiddenFiles.map((file) => {
+            return `    - ${file.name}`;
+          }),
+        ].join("\n"),
+      );
+    }
+
+    onChange(allowedFiles);
   }
 
   return (
