@@ -34,6 +34,7 @@ function FileInput({
     ".pdf": "application/pdf",
     ".png": "image/png",
     ".jpeg": "image/jpeg",
+    ".jpg": "image/jpg",
     ".xlsx":
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     ".docx":
@@ -43,9 +44,19 @@ function FileInput({
     ".wav": "audio/wav",
   };
   const allowedFileMimes: string[] = [];
-  for (const extension in fileExtensionsToFileMimes) {
-    if (accept.includes(extension)) {
-      allowedFileMimes.push(fileExtensionsToFileMimes[extension]);
+  const supportedFileMimes = Object.keys(fileExtensionsToFileMimes);
+  const supportedFileExtensions = Object.values(fileExtensionsToFileMimes);
+  for (const extension of accept) {
+    const normalisedExtension = extension.toLowerCase();
+    if (fileExtensionsToFileMimes[normalisedExtension]) {
+      allowedFileMimes.push(fileExtensionsToFileMimes[normalisedExtension]);
+    } else if (
+      !supportedFileMimes.includes(extension) &&
+      !supportedFileExtensions.includes(extension)
+    ) {
+      console.warn(
+        `WARNING: The file type ${extension} is not natively supported.`,
+      );
     }
   }
 
