@@ -204,7 +204,7 @@ function FileInput({
             handleFiles(Array.from(event.target.files ?? []));
           }}
           multiple={multiple}
-          accept={accept.join(",")}
+          accept={memoisedAccept.join(",")}
           disabled={disabled}
         />
       </Button>
