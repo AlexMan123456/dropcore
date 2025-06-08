@@ -14,7 +14,7 @@ interface FileInputArguments extends Omit<FileInputProps, "onChange"> {
 export interface FileInputListProps {
   files: File[];
   setFiles: Dispatch<SetStateAction<File[]>>;
-  fileInputProps: FileInputArguments;
+  fileInputProps?: FileInputArguments;
 }
 
 function FileInputList({
