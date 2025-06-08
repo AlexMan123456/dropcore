@@ -46,7 +46,6 @@ function FileInput({
   disabled,
 }: FileInputProps) {
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  //const [dragCount, setDragCount] = useState<number>(0);
 
   const fileExtensionsToFileMimes: Record<string, string> = {
     ".pdf": "application/pdf",
