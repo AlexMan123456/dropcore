@@ -1,10 +1,11 @@
 import { Button, ButtonOwnProps, styled } from "@mui/material";
 import { CloudUpload } from "@mui/icons-material";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FileType } from ".";
 
 export interface FileInputProps {
-  onChange: (files: File[]) => void;
+  onChange: (allowedFiles: File[]) => void;
+  onReject?: (forbiddenFiles: File[]) => void;
   accept?: (FileType | string)[];
   label?: string;
   multiple?: boolean;
@@ -39,6 +40,7 @@ const Dropzone = styled("div")<{ $dragging: boolean }>(
 
 function FileInput({
   onChange,
+  onReject,
   accept = Object.values(FileType),
   label = "Upload File",
   multiple,
@@ -47,56 +49,120 @@ function FileInput({
 }: FileInputProps) {
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  const fileExtensionsToFileMimes: Record<string, string> = {
-    ".pdf": "application/pdf",
-    ".png": "image/png",
-    ".jpeg": "image/jpeg",
-    ".jpg": "image/jpg",
-    ".xlsx":
+  const fileExtensionsToFileMimes: Record<string, string[]> = {
+    ".pdf": ["application/pdf"],
+    ".png": ["image/png"],
+    ".jpeg": ["image/jpeg", "image/jpg"],
+    ".jpg": ["image/jpeg", "image/jpg"],
+    ".xlsx": [
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    ".docx":
+    ],
+    ".docx": [
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ".mp3": "audio/mp3",
-    ".mp4": "video/mp4",
-    ".wav": "audio/wav",
+    ],
+    ".mp3": ["audio/mp3", "audio/mpeg"],
+    ".mp4": ["video/mp4"],
+    ".wav": ["audio/wav"],
   };
-  const allowedFileMimes: string[] = [];
-  const supportedFileMimes = Object.keys(fileExtensionsToFileMimes);
-  const supportedFileExtensions = Object.values(fileExtensionsToFileMimes);
-  for (const extension of accept) {
-    const normalisedExtension = extension.toLowerCase();
-    if (fileExtensionsToFileMimes[normalisedExtension]) {
-      allowedFileMimes.push(fileExtensionsToFileMimes[normalisedExtension]);
-    } else if (
-      !supportedFileMimes.includes(extension) &&
-      !supportedFileExtensions.includes(extension)
-    ) {
-      console.warn(
-        `WARNING: The file type ${extension} is not natively supported.`,
+
+  const supportedFileExtensions = Object.keys(fileExtensionsToFileMimes);
+  const supportedFileMimes = Object.values(fileExtensionsToFileMimes).flat(1);
+
+  const memoisedAccept = useMemo(() => {
+    return [...accept].sort();
+  }, [JSON.stringify(accept)]);
+
+  const {
+    allowedFileMimes,
+    allowedUnsupportedFileMimes,
+    allowedUnsupportedFileExtensions,
+    invalidFileTypes,
+  } = useMemo(() => {
+    const invalidFileTypes: string[] = [];
+    const allowedFileMimes: string[] = [];
+    const allowedUnsupportedFileMimes: string[] = [];
+    const allowedUnsupportedFileExtensions: string[] = [];
+    for (const incomingFileType of memoisedAccept) {
+      const normalisedFileType = incomingFileType.toLowerCase();
+      if (fileExtensionsToFileMimes[normalisedFileType]) {
+        allowedFileMimes.push(...fileExtensionsToFileMimes[normalisedFileType]);
+      } else if (
+        !supportedFileMimes.includes(normalisedFileType) &&
+        !supportedFileExtensions.includes(normalisedFileType)
+      ) {
+        if (normalisedFileType.includes("/")) {
+          allowedFileMimes.push(normalisedFileType);
+          allowedUnsupportedFileMimes.push(normalisedFileType);
+        } else if (
+          normalisedFileType[0] === "." &&
+          !normalisedFileType.slice(1).includes(".")
+        ) {
+          allowedUnsupportedFileExtensions.push(normalisedFileType);
+        } else {
+          invalidFileTypes.push(normalisedFileType);
+        }
+      }
+    }
+    return {
+      allowedFileMimes,
+      allowedUnsupportedFileMimes,
+      allowedUnsupportedFileExtensions,
+      invalidFileTypes,
+    };
+  }, [memoisedAccept]);
+
+  useEffect(() => {
+    for (const invalidFileType of invalidFileTypes) {
+      console.error(
+        `ERROR: ${invalidFileType} is not a valid file extension or MIME type.`,
       );
     }
-  }
+    for (const unsupportedFileType of [
+      ...allowedUnsupportedFileMimes,
+      ...allowedUnsupportedFileExtensions,
+    ]) {
+      console.warn(
+        `WARNING: The file type ${unsupportedFileType} is not natively supported.`,
+      );
+    }
+  }, [
+    allowedUnsupportedFileMimes,
+    allowedUnsupportedFileExtensions,
+    invalidFileTypes,
+  ]);
 
   function handleFiles(filesArray: File[]) {
     const allowedFiles = [];
     const forbiddenFiles = [];
 
     for (const file of filesArray) {
+      const fileExtension = `.${file.name.split(".")[file.name.split(".").length - 1]}`;
       if (allowedFileMimes.includes(file.type)) {
         allowedFiles.push(file);
       } else {
-        forbiddenFiles.push(file);
+        if (
+          allowedUnsupportedFileMimes.includes(file.type) ||
+          allowedUnsupportedFileExtensions.includes(fileExtension)
+        ) {
+          allowedFiles.push(file);
+        } else {
+          forbiddenFiles.push(file);
+        }
       }
     }
     if (forbiddenFiles.length !== 0) {
-      alert(
-        [
-          "The following files did not match the expected format and will therefore not be accepted:",
-          ...forbiddenFiles.map((file) => {
-            return `    - ${file.name}`;
-          }),
-        ].join("\n"),
-      );
+      if (onReject) {
+        onReject(forbiddenFiles);
+      } else {
+        alert(
+          [
+            "The following files did not match the expected format and will therefore not be accepted:",
+            ...forbiddenFiles.map((file) => {
+              return `    - ${file.name}`;
+            }),
+          ].join("\n"),
+        );
+      }
     }
     onChange(allowedFiles);
   }
