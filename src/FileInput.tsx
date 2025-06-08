@@ -11,6 +11,7 @@ export interface FileInputProps {
   multiple?: boolean;
   variant?: ButtonOwnProps["variant"];
   disabled?: boolean;
+  useDropzone?: boolean;
 }
 
 const VisuallyHiddenInput = styled("input")({
@@ -38,6 +39,51 @@ const Dropzone = styled("div")<{ $dragging: boolean }>(
   }),
 );
 
+interface FileInputButtonProps {
+  variant: ButtonOwnProps["variant"];
+  label: string;
+  handleFiles: (filesArray: File[]) => void;
+  multiple?: boolean;
+  accept: string;
+  disabled?: boolean;
+}
+
+function FileInputButton({
+  variant,
+  label,
+  handleFiles,
+  multiple,
+  accept,
+  disabled,
+}: FileInputButtonProps) {
+  return (
+    <Button
+      component="label"
+      role={undefined}
+      variant={variant}
+      startIcon={<CloudUpload />}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          document.getElementById("file-input")?.click();
+        }
+      }}
+    >
+      {label}
+      <VisuallyHiddenInput
+        id="file-input"
+        type="file"
+        onChange={(event) => {
+          handleFiles(Array.from(event.target.files ?? []));
+        }}
+        multiple={multiple}
+        accept={accept}
+        disabled={disabled}
+      />
+    </Button>
+  );
+}
+
 function FileInput({
   onChange,
   onReject,
@@ -46,6 +92,7 @@ function FileInput({
   multiple,
   variant = "contained",
   disabled,
+  useDropzone = true,
 }: FileInputProps) {
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
@@ -167,7 +214,16 @@ function FileInput({
     onChange(allowedFiles);
   }
 
-  return (
+  const fileInputButtonProps = {
+    variant: variant,
+    label: label,
+    handleFiles: handleFiles,
+    multiple: multiple,
+    accept: memoisedAccept.join(","),
+    disabled: disabled,
+  };
+
+  return useDropzone ? (
     <Dropzone
       $dragging={isDragging}
       onDragOver={(event) => {
@@ -191,31 +247,10 @@ function FileInput({
         handleFiles(filesArray);
       }}
     >
-      <Button
-        component="label"
-        role={undefined}
-        variant={variant}
-        startIcon={<CloudUpload />}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            document.getElementById("file-input")?.click();
-          }
-        }}
-      >
-        {label}
-        <VisuallyHiddenInput
-          id="file-input"
-          type="file"
-          onChange={(event) => {
-            handleFiles(Array.from(event.target.files ?? []));
-          }}
-          multiple={multiple}
-          accept={memoisedAccept.join(",")}
-          disabled={disabled}
-        />
-      </Button>
+      <FileInputButton {...fileInputButtonProps} />
     </Dropzone>
+  ) : (
+    <FileInputButton {...fileInputButtonProps} />
   );
 }
 
