@@ -67,64 +67,69 @@ function FileInput({
 
   const supportedFileExtensions = Object.keys(fileExtensionsToFileMimes);
   const supportedFileMimes = Object.values(fileExtensionsToFileMimes).flat(1);
-  const [allowedFileMimes, setAllowedFileMimes] = useState<string[]>([]);
-  const [allowedUnsupportedFileMimes, setAllowedUnsupportedFileMimes] =
-    useState<string[]>([]);
-  const [
-    allowedUnsupportedFileExtensions,
-    setAllowedUnsupportedFileExtensions,
-  ] = useState<string[]>([]);
-
-  function addItemToNewArray(oldArray: any[], newItem: any): any[] {
-    const newArray = [...oldArray];
-    newArray.push(newItem);
-    return newArray;
-  }
 
   const memoisedAccept = useMemo(() => {
-    return [...accept];
-  }, [accept]);
+    return [...accept].sort();
+  }, [JSON.stringify(accept)]);
 
-  useEffect(() => {
+  const {
+    allowedFileMimes,
+    allowedUnsupportedFileMimes,
+    allowedUnsupportedFileExtensions,
+    invalidFileTypes,
+  } = useMemo(() => {
+    const invalidFileTypes: string[] = [];
+    const allowedFileMimes: string[] = [];
+    const allowedUnsupportedFileMimes: string[] = [];
+    const allowedUnsupportedFileExtensions: string[] = [];
     for (const incomingFileType of memoisedAccept) {
       const normalisedFileType = incomingFileType.toLowerCase();
       if (fileExtensionsToFileMimes[normalisedFileType]) {
-        setAllowedFileMimes((oldMimes) => {
-          return addItemToNewArray(
-            oldMimes,
-            fileExtensionsToFileMimes[normalisedFileType],
-          ).flat(1);
-        });
+        allowedFileMimes.push(...fileExtensionsToFileMimes[normalisedFileType]);
       } else if (
-        !supportedFileMimes.includes(incomingFileType) &&
-        !supportedFileExtensions.includes(incomingFileType)
+        !supportedFileMimes.includes(normalisedFileType) &&
+        !supportedFileExtensions.includes(normalisedFileType)
       ) {
-        if (incomingFileType.includes("/")) {
-          setAllowedFileMimes((oldMimes) => {
-            return addItemToNewArray(oldMimes, incomingFileType);
-          });
-          setAllowedUnsupportedFileMimes((oldMimes) => {
-            return addItemToNewArray(oldMimes, incomingFileType);
-          });
+        if (normalisedFileType.includes("/")) {
+          allowedFileMimes.push(normalisedFileType);
+          allowedUnsupportedFileMimes.push(normalisedFileType);
         } else if (
-          incomingFileType[0] === "." &&
-          !incomingFileType.slice(1).includes(".")
+          normalisedFileType[0] === "." &&
+          !normalisedFileType.slice(1).includes(".")
         ) {
-          setAllowedUnsupportedFileExtensions((oldExtensions) => {
-            return addItemToNewArray(oldExtensions, incomingFileType);
-          });
+          allowedUnsupportedFileExtensions.push(normalisedFileType);
         } else {
-          console.error(
-            `ERROR: ${incomingFileType} is not a valid file extension or MIME type`,
-          );
-          return;
+          invalidFileTypes.push(normalisedFileType);
         }
-        console.warn(
-          `WARNING: The file type ${incomingFileType} is not natively supported.`,
-        );
       }
     }
+    return {
+      allowedFileMimes,
+      allowedUnsupportedFileMimes,
+      allowedUnsupportedFileExtensions,
+      invalidFileTypes,
+    };
   }, [memoisedAccept]);
+
+  useEffect(() => {
+    for (const invalidFileType of invalidFileTypes) {
+      console.error(
+        `ERROR: ${invalidFileType} is not a valid file extension or MIME type.`,
+      );
+    }
+    for (const unsupportedFileType of [
+      ...allowedUnsupportedFileMimes,
+      ...allowedUnsupportedFileExtensions,
+    ]) {
+      console.warn(
+        `WARNING: The file type ${unsupportedFileType} is not natively supported.`,
+      );
+    }
+  }, [
+    allowedUnsupportedFileMimes,
+    allowedUnsupportedFileExtensions,
+    invalidFileTypes,
+  ]);
 
   function handleFiles(filesArray: File[]) {
     const allowedFiles = [];
