@@ -8,7 +8,7 @@ import { FileType } from ".";
 
 export interface FileInputProps {
   onChange: (allowedFiles: File[]) => void;
-  onReject?: (forbiddenFiles: File[]) => void;
+  onReject?: (forbiddenFiles: File[], defaultErrorMessage: string) => void;
   accept?: (FileType | string)[];
   label?: string;
   multiple?: boolean;
@@ -212,17 +212,16 @@ function FileInput({
       }
     }
     if (forbiddenFiles.length !== 0) {
+      const defaultErrorMessage = [
+        "The following files did not match the expected format and will therefore not be accepted:",
+        ...forbiddenFiles.map((file) => {
+          return `    - ${file.name}`;
+        }),
+      ].join("\n");
       if (onReject) {
-        onReject(forbiddenFiles);
+        onReject(forbiddenFiles, defaultErrorMessage);
       } else {
-        alert(
-          [
-            "The following files did not match the expected format and will therefore not be accepted:",
-            ...forbiddenFiles.map((file) => {
-              return `    - ${file.name}`;
-            }),
-          ].join("\n"),
-        );
+        alert(defaultErrorMessage);
       }
     }
     onChange(allowedFiles);
