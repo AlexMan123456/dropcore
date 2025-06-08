@@ -13,6 +13,7 @@ interface FileInputListProps {
   setFiles: Dispatch<SetStateAction<File[]>>;
   accept?: (FileType | string)[];
   onReject?: (forbiddenFiles: File[]) => void;
+  useDropzone?: boolean;
 }
 
 function FileInputList({
@@ -20,6 +21,7 @@ function FileInputList({
   setFiles,
   accept = Object.values(FileType),
   onReject,
+  useDropzone = true,
 }: FileInputListProps) {
   function onChange(newFiles: File[]) {
     setFiles((oldFiles) => {
@@ -34,6 +36,7 @@ function FileInputList({
         accept={accept}
         multiple={true}
         onReject={onReject}
+        useDropzone={useDropzone}
       />
       <List>
         {files.map((file) => {
