@@ -1,27 +1,26 @@
 import Box from "@mui/material/Box";
 import { Dispatch, SetStateAction } from "react";
-import FileInput from "./FileInput";
+import FileInput, { FileInputProps } from "./FileInput";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ListItemText from "@mui/material/ListItemText";
-import { FileType } from ".";
 
-interface FileInputListProps {
+interface FileInputArguments extends Omit<FileInputProps, "onChange"> {
+  onChange?: (allowedFiles: File[]) => void;
+}
+
+export interface FileInputListProps {
   files: File[];
   setFiles: Dispatch<SetStateAction<File[]>>;
-  accept?: (FileType | string)[];
-  onReject?: (forbiddenFiles: File[]) => void;
-  useDropzone?: boolean;
+  fileInputProps: FileInputArguments;
 }
 
 function FileInputList({
   files,
   setFiles,
-  accept = Object.values(FileType),
-  onReject,
-  useDropzone = true,
+  fileInputProps,
 }: FileInputListProps) {
   function onChange(newFiles: File[]) {
     setFiles((oldFiles) => {
@@ -29,15 +28,14 @@ function FileInputList({
     });
   }
 
+  const newFileInputProps = { ...fileInputProps, onChange };
+  if (newFileInputProps.multiple === undefined) {
+    newFileInputProps.multiple = true;
+  }
+
   return (
     <Box>
-      <FileInput
-        onChange={onChange}
-        accept={accept}
-        multiple={true}
-        onReject={onReject}
-        useDropzone={useDropzone}
-      />
+      <FileInput {...newFileInputProps} />
       <List>
         {files.map((file) => {
           return (

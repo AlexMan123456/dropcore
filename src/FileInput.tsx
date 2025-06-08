@@ -1,6 +1,9 @@
-import { Button, ButtonOwnProps, styled } from "@mui/material";
-import { CloudUpload } from "@mui/icons-material";
-import { useEffect, useMemo, useState } from "react";
+import { styled, type Theme } from "@mui/material";
+import Button from "@mui/material/Button";
+import { type ButtonOwnProps } from "@mui/material";
+import { type SxProps } from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { FileType } from ".";
 
 export interface FileInputProps {
@@ -12,6 +15,8 @@ export interface FileInputProps {
   variant?: ButtonOwnProps["variant"];
   disabled?: boolean;
   useDropzone?: boolean;
+  buttonSx?: SxProps<Theme>;
+  startIcon?: ReactNode;
 }
 
 const VisuallyHiddenInput = styled("input")({
@@ -46,6 +51,8 @@ interface FileInputButtonProps {
   multiple?: boolean;
   accept: string;
   disabled?: boolean;
+  startIcon?: ReactNode;
+  sx?: SxProps<Theme>;
 }
 
 function FileInputButton({
@@ -55,26 +62,31 @@ function FileInputButton({
   multiple,
   accept,
   disabled,
+  startIcon,
+  sx,
 }: FileInputButtonProps) {
   return (
     <Button
       component="label"
-      role={undefined}
+      aria-label="File upload button"
       variant={variant}
-      startIcon={<CloudUpload />}
+      startIcon={startIcon}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
           document.getElementById("file-input")?.click();
         }
       }}
+      sx={sx}
     >
       {label}
       <VisuallyHiddenInput
         id="file-input"
         type="file"
         onChange={(event) => {
-          handleFiles(Array.from(event.target.files ?? []));
+          const input = event.target;
+          handleFiles(Array.from(input.files ?? []));
+          input.value = "";
         }}
         multiple={multiple}
         accept={accept}
@@ -93,6 +105,8 @@ function FileInput({
   variant = "contained",
   disabled,
   useDropzone = true,
+  startIcon = <CloudUploadIcon />,
+  buttonSx,
 }: FileInputProps) {
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
@@ -215,12 +229,14 @@ function FileInput({
   }
 
   const fileInputButtonProps = {
-    variant: variant,
-    label: label,
-    handleFiles: handleFiles,
-    multiple: multiple,
+    variant,
+    label,
+    handleFiles,
+    multiple,
     accept: memoisedAccept.join(","),
-    disabled: disabled,
+    disabled,
+    startIcon,
+    sx: buttonSx,
   };
 
   return useDropzone ? (
