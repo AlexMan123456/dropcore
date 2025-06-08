@@ -9,7 +9,6 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
     "build": "tsc -b && vite build",
     "format": "npx prettier --write --parser typescript 'src/**/*.{ts,tsx}'",
     "lint": "npx eslint . --ext .ts,.tsx --fix && npx prettier --check --parser typescript '**/*.{ts,tsx}'",
