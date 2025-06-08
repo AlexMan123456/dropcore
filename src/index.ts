@@ -2,6 +2,7 @@ export enum FileType {
   PDF = ".pdf",
   PNG = ".png",
   JPEG = ".jpeg",
+  JPG = ".jpg",
   XLSX = ".xlsx",
   DOCX = ".docx",
   MP3 = ".mp3",
