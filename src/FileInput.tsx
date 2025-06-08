@@ -196,9 +196,16 @@ function FileInput({
         role={undefined}
         variant={variant}
         startIcon={<CloudUpload />}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            document.getElementById("file-input")?.click();
+          }
+        }}
       >
         {label}
         <VisuallyHiddenInput
+          id="file-input"
           type="file"
           onChange={(event) => {
             handleFiles(Array.from(event.target.files ?? []));
