@@ -12,12 +12,14 @@ interface FileInputListProps {
   files: File[];
   setFiles: Dispatch<SetStateAction<File[]>>;
   accept?: (FileType | string)[];
+  onReject?: (forbiddenFiles: File[]) => void;
 }
 
 function FileInputList({
   files,
   setFiles,
   accept = Object.values(FileType),
+  onReject,
 }: FileInputListProps) {
   function onChange(newFiles: File[]) {
     setFiles((oldFiles) => {
@@ -27,7 +29,12 @@ function FileInputList({
 
   return (
     <Box>
-      <FileInput onChange={onChange} accept={accept} multiple={true} />
+      <FileInput
+        onChange={onChange}
+        accept={accept}
+        multiple={true}
+        onReject={onReject}
+      />
       <List>
         {files.map((file) => {
           return (
