@@ -1,6 +1,6 @@
-import { Button, styled } from "@mui/material";
+import { Button, ButtonOwnProps, styled } from "@mui/material";
 import { CloudUpload } from "@mui/icons-material";
-import { ChangeEvent } from "react";
+import { useState } from "react";
 import { FileType } from ".";
 
 export interface FileInputProps {
@@ -8,6 +8,7 @@ export interface FileInputProps {
   accept?: (FileType | string)[];
   label?: string;
   multiple?: boolean;
+  variant?: ButtonOwnProps["variant"];
   disabled?: boolean;
 }
 
@@ -23,13 +24,30 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
+const Dropzone = styled("div")<{ $dragging: boolean }>(
+  ({ theme, $dragging }) => ({
+    border: "2px dashed",
+    borderColor: $dragging ? theme.palette.primary.main : "#ccc",
+    backgroundColor: $dragging ? theme.palette.action.hover : "transparent",
+    borderRadius: 8,
+    padding: "1.5rem",
+    textAlign: "center",
+    transition: "border-color 0.2s",
+    cursor: "pointer",
+  }),
+);
+
 function FileInput({
   onChange,
   accept = Object.values(FileType),
   label = "Upload File",
   multiple,
+  variant = "contained",
   disabled,
 }: FileInputProps) {
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  //const [dragCount, setDragCount] = useState<number>(0);
+
   const fileExtensionsToFileMimes: Record<string, string> = {
     ".pdf": "application/pdf",
     ".png": "image/png",
@@ -60,8 +78,7 @@ function FileInput({
     }
   }
 
-  function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    const filesArray = Array.from(event.target.files ?? []);
+  function handleFiles(filesArray: File[]) {
     const allowedFiles = [];
     const forbiddenFiles = [];
 
@@ -82,26 +99,51 @@ function FileInput({
         ].join("\n"),
       );
     }
-
     onChange(allowedFiles);
   }
 
   return (
-    <Button
-      component="label"
-      role={undefined}
-      variant="outlined"
-      startIcon={<CloudUpload />}
+    <Dropzone
+      $dragging={isDragging}
+      onDragOver={(event) => {
+        event.preventDefault();
+        if (disabled) {
+          return;
+        }
+        setIsDragging(true);
+      }}
+      onDragLeave={(event) => {
+        event.preventDefault();
+        setIsDragging(false);
+      }}
+      onDrop={(event) => {
+        event.preventDefault();
+        setIsDragging(false);
+        if (disabled) {
+          return;
+        }
+        const filesArray = Array.from(event.dataTransfer.files ?? []);
+        handleFiles(filesArray);
+      }}
     >
-      {label}
-      <VisuallyHiddenInput
-        type="file"
-        onChange={handleChange}
-        multiple={multiple}
-        accept={accept.join(",")}
-        disabled={disabled}
-      />
-    </Button>
+      <Button
+        component="label"
+        role={undefined}
+        variant={variant}
+        startIcon={<CloudUpload />}
+      >
+        {label}
+        <VisuallyHiddenInput
+          type="file"
+          onChange={(event) => {
+            handleFiles(Array.from(event.target.files ?? []));
+          }}
+          multiple={multiple}
+          accept={accept.join(",")}
+          disabled={disabled}
+        />
+      </Button>
+    </Dropzone>
   );
 }
 
