@@ -71,6 +71,7 @@ function FileInputButton({
       aria-label="File upload button"
       variant={variant}
       startIcon={startIcon}
+      disabled={disabled}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
