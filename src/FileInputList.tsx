@@ -7,20 +7,15 @@ import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ListItemText from "@mui/material/ListItemText";
 
-interface FileInputArguments extends Omit<FileInputProps, "onChange"> {
-  onChange?: (allowedFiles: File[]) => void;
-}
-
-export interface FileInputListProps {
+export interface FileInputListProps extends Omit<FileInputProps, "onChange"> {
   files: File[];
   setFiles: Dispatch<SetStateAction<File[]>>;
-  fileInputProps?: FileInputArguments;
 }
 
 function FileInputList({
   files,
   setFiles,
-  fileInputProps,
+  ...fileInputProps
 }: FileInputListProps) {
   function onChange(newFiles: File[]) {
     setFiles((oldFiles) => {
@@ -29,7 +24,7 @@ function FileInputList({
   }
 
   const newFileInputProps = { ...fileInputProps, onChange };
-  if (newFileInputProps.multiple === undefined) {
+  if (newFileInputProps?.multiple === undefined) {
     newFileInputProps.multiple = true;
   }
 
