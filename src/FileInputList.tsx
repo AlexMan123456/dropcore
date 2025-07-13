@@ -1,11 +1,12 @@
 import Box from "@mui/material/Box";
 import { Dispatch, SetStateAction } from "react";
-import FileInput, { FileInputProps } from "./FileInput";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ListItemText from "@mui/material/ListItemText";
+import { FileInput } from "src";
+import { FileInputProps } from "src/FileInput";
 
 export interface FileInputListProps extends Omit<FileInputProps, "onChange"> {
   files: File[];

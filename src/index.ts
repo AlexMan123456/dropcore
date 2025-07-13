@@ -10,5 +10,5 @@ export enum FileType {
   WAV = ".wav",
 }
 
-export { default as FileInput } from "./FileInput";
-export { default as FileInputList } from "./FileInputList";
+export { default as FileInput } from "src/FileInput";
+export { default as FileInputList } from "src/FileInputList";
