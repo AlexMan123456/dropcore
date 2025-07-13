@@ -1,10 +1,8 @@
-import { styled, type Theme } from "@mui/material";
-import Button from "@mui/material/Button";
-import { type ButtonOwnProps } from "@mui/material";
-import { type SxProps } from "@mui/material";
+import Button, { ButtonOwnProps } from "@mui/material/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { FileType } from ".";
+import { styled, SxProps, Theme } from "@mui/material/styles";
 
 export interface FileInputProps {
   onChange: (allowedFiles: File[]) => void;
@@ -175,6 +173,7 @@ function FileInput({
 
   useEffect(() => {
     for (const invalidFileType of invalidFileTypes) {
+      // eslint-disable-next-line no-console
       console.error(
         `ERROR: ${invalidFileType} is not a valid file extension or MIME type.`,
       );
@@ -183,6 +182,7 @@ function FileInput({
       ...allowedUnsupportedFileMimes,
       ...allowedUnsupportedFileExtensions,
     ]) {
+      // eslint-disable-next-line no-console
       console.warn(
         `WARNING: The file type ${unsupportedFileType} is not natively supported.`,
       );
