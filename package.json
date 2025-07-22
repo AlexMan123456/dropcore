@@ -13,7 +13,11 @@
     "format": "prettier --write --parser typescript 'src/**/*.{ts,tsx}' && ESLINT_MODE=fix eslint --fix 'src/**/*.{ts,tsx}'",
     "lint": "ESLINT_MODE=lint eslint 'src/**/*.{ts,tsx}' && prettier --check --parser typescript 'src/**/*.{ts,tsx}'",
     "preview": "vite preview",
-    "prepare": "husky"
+    "prepare": "husky",
+    "update-dependencies": "npx npm-check-updates -u && npm install",
+    "change-major": "npm version major -m \"Change version number to v%s\"",
+    "change-minor": "npm version minor -m \"Change version number to v%s\"",
+    "change-patch": "npm version patch -m \"Change version number to v%s\""
   },
   "peerDependencies": {
     "@emotion/react": "^11.14.0",
