@@ -13,7 +13,11 @@
     "format": "prettier --write --parser typescript 'src/**/*.{ts,tsx}' && ESLINT_MODE=fix eslint --fix 'src/**/*.{ts,tsx}'",
     "lint": "ESLINT_MODE=lint eslint 'src/**/*.{ts,tsx}' && prettier --check --parser typescript 'src/**/*.{ts,tsx}'",
     "preview": "vite preview",
-    "prepare": "husky"
+    "prepare": "husky",
+    "update-dependencies": "npx npm-check-updates -u && npm install",
+    "change-major": "npm version major -m \"Change version number to v%s\"",
+    "change-minor": "npm version minor -m \"Change version number to v%s\"",
+    "change-patch": "npm version patch -m \"Change version number to v%s\""
   },
   "peerDependencies": {
     "@emotion/react": "^11.14.0",
@@ -24,26 +28,25 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "@alextheman/eslint-config-typescript-base": "^1.0.3",
-    "@alextheman/eslint-config-typescript-react-base": "^1.0.1",
     "@eslint/js": "^9.31.0",
-    "@types/node": "^24.0.13",
-    "@types/react": "^19.1.2",
-    "@types/react-dom": "^19.1.2",
-    "@typescript-eslint/eslint-plugin": "^8.36.0",
-    "@typescript-eslint/parser": "^8.36.0",
-    "@vitejs/plugin-react": "^4.4.1",
+    "@types/node": "^24.1.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.7.0",
     "eslint": "^9.31.0",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.19",
-    "globals": "^16.0.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
     "husky": "^9.1.7",
-    "prettier": "^3.5.3",
+    "prettier": "^3.6.2",
     "typescript": "~5.8.3",
-    "typescript-eslint": "^8.36.0",
-    "vite": "^6.3.5",
+    "typescript-eslint": "^8.38.0",
+    "vite": "^7.0.5",
     "vite-plugin-dts": "^4.5.4"
+  },
+  "dependencies": {
+    "@alextheman/eslint-plugin": "^1.2.2"
   }
 }
