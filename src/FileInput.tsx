@@ -1,8 +1,13 @@
-import Button, { ButtonOwnProps } from "@mui/material/Button";
+import type { ButtonOwnProps } from "@mui/material/Button";
+import type { SxProps, Theme } from "@mui/material/styles";
+import type { ReactNode } from "react";
+
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import Button from "@mui/material/Button";
+import { styled } from "@mui/material/styles";
+import { useEffect, useMemo, useState } from "react";
+
 import { FileType } from ".";
-import { styled, SxProps, Theme } from "@mui/material/styles";
 
 export interface FileInputProps {
   onChange: (allowedFiles: File[]) => void;
@@ -29,8 +34,8 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-const Dropzone = styled("div")<{ $dragging: boolean }>(
-  ({ theme, $dragging }) => ({
+const Dropzone = styled("div")<{ $dragging: boolean }>(({ theme, $dragging }) => {
+  return {
     border: "2px dashed",
     borderColor: $dragging ? theme.palette.primary.main : "#ccc",
     backgroundColor: $dragging ? theme.palette.action.hover : "transparent",
@@ -39,8 +44,8 @@ const Dropzone = styled("div")<{ $dragging: boolean }>(
     textAlign: "center",
     transition: "border-color 0.2s",
     cursor: "pointer",
-  }),
-);
+  };
+});
 
 interface FileInputButtonProps {
   variant: ButtonOwnProps["variant"];
@@ -114,12 +119,8 @@ function FileInput({
     ".png": ["image/png"],
     ".jpeg": ["image/jpeg", "image/jpg"],
     ".jpg": ["image/jpeg", "image/jpg"],
-    ".xlsx": [
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    ],
-    ".docx": [
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ],
+    ".xlsx": ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+    ".docx": ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
     ".mp3": ["audio/mp3", "audio/mpeg"],
     ".mp4": ["video/mp4"],
     ".wav": ["audio/wav"],
@@ -153,10 +154,7 @@ function FileInput({
         if (normalisedFileType.includes("/")) {
           allowedFileMimes.push(normalisedFileType);
           allowedUnsupportedFileMimes.push(normalisedFileType);
-        } else if (
-          normalisedFileType[0] === "." &&
-          !normalisedFileType.slice(1).includes(".")
-        ) {
+        } else if (normalisedFileType[0] === "." && !normalisedFileType.slice(1).includes(".")) {
           allowedUnsupportedFileExtensions.push(normalisedFileType);
         } else {
           invalidFileTypes.push(normalisedFileType);
@@ -173,25 +171,15 @@ function FileInput({
 
   useEffect(() => {
     for (const invalidFileType of invalidFileTypes) {
-      // eslint-disable-next-line no-console
-      console.error(
-        `ERROR: ${invalidFileType} is not a valid file extension or MIME type.`,
-      );
+      console.error(`ERROR: ${invalidFileType} is not a valid file extension or MIME type.`);
     }
     for (const unsupportedFileType of [
       ...allowedUnsupportedFileMimes,
       ...allowedUnsupportedFileExtensions,
     ]) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `WARNING: The file type ${unsupportedFileType} is not natively supported.`,
-      );
+      console.warn(`WARNING: The file type ${unsupportedFileType} is not natively supported.`);
     }
-  }, [
-    allowedUnsupportedFileMimes,
-    allowedUnsupportedFileExtensions,
-    invalidFileTypes,
-  ]);
+  }, [allowedUnsupportedFileMimes, allowedUnsupportedFileExtensions, invalidFileTypes]);
 
   function handleFiles(filesArray: File[]) {
     const allowedFiles = [];
