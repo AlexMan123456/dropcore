@@ -189,15 +189,13 @@ function FileInput({
       const fileExtension = `.${file.name.split(".")[file.name.split(".").length - 1]}`;
       if (allowedFileMimes.includes(file.type)) {
         allowedFiles.push(file);
+      } else if (
+        allowedUnsupportedFileMimes.includes(file.type) ||
+        allowedUnsupportedFileExtensions.includes(fileExtension)
+      ) {
+        allowedFiles.push(file);
       } else {
-        if (
-          allowedUnsupportedFileMimes.includes(file.type) ||
-          allowedUnsupportedFileExtensions.includes(fileExtension)
-        ) {
-          allowedFiles.push(file);
-        } else {
-          forbiddenFiles.push(file);
-        }
+        forbiddenFiles.push(file);
       }
     }
     if (forbiddenFiles.length !== 0) {
